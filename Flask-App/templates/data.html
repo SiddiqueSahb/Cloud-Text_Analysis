@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analysis Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="title">Results</h1>
+      <p class="subtitle">Results for each uploaded file.</p>
+      <a class="link" href="{{ url_for('upload_page') }}">← Analyze more files</a>
+    </header>
+
+    {% if results %}
+      <main class="results">
+
+        {% for item in results %}
+          <article class="result-card">
+
+            <!-- NEW: file number + filename -->
+            <div class="result-head">
+              <div class="file-title-group">
+                <span class="file-number">File {{ loop.index }}</span>
+                <h2 class="result-title">{{ item.filename }}</h2>
+              </div>
+
+              {% if item.data and item.data.analyses_ran %}
+                <div class="chips">
+                  {% for a in item.data.analyses_ran %}
+                    <span class="chip">{{ a }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+            {% if item.error %}
+              <div class="alert">Error analyzing this file: {{ item.error }}</div>
+            {% else %}
+
+              {% if item.data and item.data.top_20_words %}
+                <section class="block">
+                  <h3 class="block-title">Top 20 Words</h3>
+
+                  <!-- NEW: wrapper for table -->
+                  <div class="table-wrap">
+                    <table class="table">
+                      <thead>
+                        <tr><th>Word</th><th>Count</th></tr>
+                      </thead>
+                      <tbody>
+                        {% for word, count in item.data.top_20_words %}
+                          <tr><td>{{ word }}</td><td>{{ count }}</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              {% endif %}
+
+              {% if item.data and item.data.top_sentence_start_words %}
+                <section class="block">
+                  <h3 class="block-title">Top Sentence Start Words</h3>
+
+                  <!-- NEW: wrapper for table -->
+                  <div class="table-wrap">
+                    <table class="table">
+                      <thead>
+                        <tr><th>Word</th><th>Count</th></tr>
+                      </thead>
+                      <tbody>
+                        {% for word, count in item.data.top_sentence_start_words %}
+                          <tr><td>{{ word }}</td><td>{{ count }}</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              {% endif %}
+
+              {% if item.data and item.data.sentence_length_stats %}
+                <section class="block">
+                  <h3 class="block-title">Sentence Length Statistics</h3>
+                  <div class="stats">
+                    <div class="stat">
+                      <div class="stat-label">Mean</div>
+                      <div class="stat-value">{{ item.data.sentence_length_stats.mean }}</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat-label">Median</div>
+                      <div class="stat-value">{{ item.data.sentence_length_stats.median }}</div>
+                    </div>
+                    <div class="stat">
+                      <div class="stat-label">Std Dev</div>
+                      <div class="stat-value">{{ item.data.sentence_length_stats.stdev }}</div>
+                    </div>
+                  </div>
+                </section>
+              {% endif %}
+
+              {% if (not item.data.top_20_words) and (not item.data.top_sentence_start_words) and (not item.data.sentence_length_stats) %}
+                <p class="muted">No analysis output was returned for this file.</p>
+              {% endif %}
+
+            {% endif %}
+          </article>
+        {% endfor %}
+
+      </main>
+    {% else %}
+      <main class="card">
+        <p>No results to display.</p>
+        <a class="link" href="{{ url_for('upload_page') }}">← Back</a>
+      </main>
+    {% endif %}
+  </div>
+</body>
+</html>
