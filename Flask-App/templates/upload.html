@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Text Files</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="title">Text File Analysis</h1>
+      <p class="subtitle">
+        Upload .txt files and choose which analyses to run.
+        <br>
+        <strong>All analyses are enabled by default.</strong>
+      </p>
+    </header>
+
+    <main class="card">
+      <form class="form" action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data">
+
+        <!-- File upload section -->
+        <section class="section">
+          <label class="label" for="fileInput">Select text files</label>
+          <input
+            id="fileInput"
+            class="file-input"
+            type="file"
+            name="files"
+            accept=".txt"
+            multiple
+            required
+          >
+
+          <div id="fileList" class="file-list">
+            <p class="muted">No files selected yet.</p>
+          </div>
+        </section>
+
+        <!-- Analysis options -->
+        <section class="section">
+          <p class="label">Choose analyses</p>
+
+          <div class="choices">
+            <label class="choice">
+              <input type="checkbox" name="analyses" value="word_freq" checked>
+              <span>Word Frequency (Top 20)</span>
+            </label>
+
+            <label class="choice">
+              <input type="checkbox" name="analyses" value="sent_start" checked>
+              <span>Sentence Start Words (Top 10)</span>
+            </label>
+
+            <label class="choice">
+              <input type="checkbox" name="analyses" value="sent_len" checked>
+              <span>Sentence Length Statistics</span>
+            </label>
+          </div>
+
+          <p class="hint">
+            Tip: Uncheck any option to skip that analysis and reduce processing time.
+          </p>
+        </section>
+
+        <!-- Submit -->
+        <button type="submit" class="btn">Upload & Analyze</button>
+
+        {% if error %}
+          <div class="alert">{{ error }}</div>
+        {% endif %}
+
+      </form>
+    </main>
+  </div>
+
+  <!-- Script: show selected files with numbering -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const input = document.getElementById("fileInput");
+      const list = document.getElementById("fileList");
+
+      input.addEventListener("change", function () {
+        list.innerHTML = "";
+
+        if (!this.files || this.files.length === 0) {
+          list.innerHTML = "<p class='muted'>No files selected yet.</p>";
+          return;
+        }
+
+        const ul = document.createElement("ul");
+        ul.className = "file-ul";
+
+        Array.from(this.files).forEach((file, index) => {
+          const li = document.createElement("li");
+          li.className = "file-item";
+          li.textContent = `File ${index + 1}: ${file.name}`;
+          ul.appendChild(li);
+        });
+
+        list.appendChild(ul);
+      });
+    });
+  </script>
+</body>
+</html>
